@@ -1,0 +1,76 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>无标题文档</title>
+<style>
+img { position:absolute; top:200px; left:300px; width:180px; }
+#img1 { left:100px; }
+</style>
+
+<script>
+window.onload = function () {
+	var oImg1 = document.getElementById('img1');
+	var oImg2 = document.getElementById('img2');
+	
+	var origL= parseInt( getStyle(oImg1, "left") );
+	//oImg1.style.left = origL + 'px';
+	var origT= parseInt( getStyle(oImg1, "top") );
+	//oImg1.style.top = origT + 'px';
+
+	oImg1.onclick = fnShake;
+	oImg2.onclick = fnShake;
+	
+	function fnShake() {
+		var _this = this;
+		oImg1.style["left"] = origL + 'px';//origL如何传递进来
+		oImg1.style["top"] = origT + 'px';
+
+		shake( _this, 'left', function(){
+			shake( _this, 'top' );
+		});
+	}
+
+};
+
+//抖动函数封装
+function shake ( obj, attr, endFn ) {
+	var pos = parseInt( getStyle(obj, attr) );//有bug 每次重开定时器回不到原点 解决办法：
+	//在函数体外把原始的attr值储存起来 每次点击 都把原始值付给该对象。比如是left 
+	//和top方向抖动 首先把初始的left和top值储存起来 然后每次点击事件发生 都把原始的
+	//left和top值付给被点击对象
+	var arr = [];			// 20, -20, 18, -18 ..... 0
+	var num = 0;
+	var timer = null;
+		
+	for ( var i=20; i>0; i-=2 ) {
+		arr.push( i, -i );
+	}
+	arr.push(0);
+		
+	clearInterval( obj.shake );
+	obj.shake = setInterval(function (){
+		obj.style[attr] = pos + arr[num] + 'px';
+		num++;
+		if ( num === arr.length ) {
+			clearInterval( obj.shake );
+			endFn && endFn();
+		}
+	}, 50);
+}
+//抖动函数封装结束
+
+function getStyle(obj,attr){
+	return obj.currentStyle?obj.currentStyle[attr]:getComputedStyle(obj,"FOR FF4.0")[attr];
+}
+</script>
+
+</head>
+
+<body>
+
+<img id="img1" src="img/4.jpg" />
+<img id="img2" src="img/5.jpg" />
+
+</body>
+</html>
